@@ -1,6 +1,5 @@
 from math import *
 import numpy
-import mgen
 
 import ArduinoControls
 import HexapodConstants
@@ -35,9 +34,9 @@ def hexapod_setup():
     UdpSend.connect()
 
 def hexapod_main():
+    device_Controls.read_controls()
     gait_controller.update(LOOP_PERIOD, device_Controls)
     joint_angles = gait_controller.get_joint_angles()
-
     UdpSend.send_angles(numpy.degrees(joint_angles))
 
 def hexapod_shutdown():

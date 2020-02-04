@@ -2,6 +2,9 @@ import smbus
 import Tools
 
 class ArduinoControls:
+    axis = [0.0 for _ in range(5)]
+    switch = [0 for _ in range(5)]
+
     def __init__(self, channel, address):
         self.address = address
         self.bus = smbus.SMBus(channel)
@@ -19,8 +22,9 @@ class ArduinoControls:
 
         # Read channels 0 to 4 into analog axes 0 to 4
         # Channel value [1100 .. 1900] mapped to [-1 .. 1]
+        filter_constant = 0.95
         for a in range(5):
-            self.axis[a] = tools.ramp(self.channel_value[a], 1100, -1, 1900, 1)
+            self.axis[a] = (filter_constant * self.axis[a]) + ((1.0 - filter_constant) * Tools.ramp(self.channel_value[a], 1100, -1, 1900, 1))
 
         # Read channels 5 to 9 into switches 0 to 4
         # Channel value discretized as following:
