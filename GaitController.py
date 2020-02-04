@@ -5,7 +5,10 @@ class GaitController:
         pass
 
     def get_joint_angles(self):
-        return joint_angles
+        return self.joint_angles
+
+    def initialize(self):
+        self.joint_angles = [0.0 for _ in range(18)]
 
     def update(self, dt, controls):
         pass
