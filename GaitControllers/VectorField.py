@@ -53,13 +53,14 @@ class VectorField(LegModelController):
                 offset = [offset_x_even, offset_y_even, offset_z_even]
                 rotation_matrix = rotation_matrix_even
 
-            tip_location_translate = numpy.add(HexapodConstants.LOCATION_DEFAULT_TIP[i], offset)
+            tip_location_translate = numpy.add(HexapodConstants.TIP_LOCATION_DEFAULT[i], offset)
             tip_location = rotation_matrix.dot(tip_location_translate)
-            angles = self.legs[i].solve_joint_angles(tip_location)
+            angles, can_calculate_angles = self.legs[i].solve_joint_angles(tip_location)
 
-            self.joint_angles[3 * i] = angles[0]
-            self.joint_angles[3 * i + 1] = angles[1]
-            self.joint_angles[3 * i + 2] = angles[2]
+            if (can_calculate_angles):
+                self.joint_angles[3 * i] = angles[0]
+                self.joint_angles[3 * i + 1] = angles[1]
+                self.joint_angles[3 * i + 2] = angles[2]
 
         self.time_step += 1
 

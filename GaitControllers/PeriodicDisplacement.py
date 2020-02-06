@@ -6,8 +6,8 @@ from GaitControllers.LegModelController import LegModelController
 import HexapodConstants
 import Tools
 
-HALF_LIFT = 20.0
-FULL_STANCE = 30.0
+LEG_LIFT_HEIGHT = 40.0
+BODY_LIFT_HEIGHT = 30.0
 HALF_STRIDE_X = 30.0
 HALF_STRIDE_Y = 30.0
 HALF_ROTATION = numpy.radians(15.0)
@@ -31,55 +31,78 @@ PHASE_TABLE_BUG = [ \
     ]
 
 class PeriodicDisplacement(LegModelController):
-    time = 0
-
     def __init__(self):
         super().__init__()
+        self.time = 0.0
+        self.leg_phase = [0.0 for _ in range(6)]
+
+        self.axis_forward = 0.0
+        self.axis_side = 0.0
+        self.axis_speed = 0.0
+        self.axis_turn = 0.0
+        self.axis_leg_lift = 0.0
+        self.axis_body_lift = 0.0
+        self.axis_tilt_forward = 0.0
+        self.axis_tilt_side = 0.0
 
     def initialize(self):
         self.time = 0
 
+        for i in range(6):
+            self.leg_phase[i] = 0.0
+
     def update(self, dt, controls):
         gait_period = fmod(self.time * 1.0, 2.0)
 
-        movement_multiplier = Tools.ramp(controls.get_axis(2), -0.9, 0.0, -0.6, 1.0)
+        if (controls.get_switch(1) == 1):
+            self.axis_tilt_forward = Tools.toward(self.axis_tilt_forward, controls.get_axis(0), 4.0 * dt)
+            self.axis_tilt_side = Tools.toward(self.axis_tilt_side, controls.get_axis(1), 4.0 * dt)
+        else:
+            self.axis_forward = Tools.toward(self.axis_forward, controls.get_axis(0), 4.0 * dt)
+            self.axis_side = Tools.toward(self.axis_side, controls.get_axis(1), 4.0 * dt)
+            self.axis_speed = Tools.toward(self.axis_speed, Tools.ramp(controls.get_axis(2), -1.0, 0.0, 1.0, 1.0), 2.0 * dt)
+            self.axis_turn = Tools.toward(self.axis_turn, controls.get_axis(3), 4.0 * dt)
+            self.axis_leg_lift = Tools.toward(self.axis_leg_lift, Tools.ramp(controls.get_axis(4), -1.0, 0.5, 0.0, 1.0), 0.5 * dt)
+            self.axis_body_lift = Tools.toward(self.axis_body_lift, Tools.ramp(controls.get_axis(4), 0.0, 0.0, 1.0, 1.0), 0.5 * dt)
 
-        lift = HALF_LIFT * (controls.get_axis(2) + 1.0)
-        stance = FULL_STANCE * Tools.ramp(controls.get_axis(2), 0.0, 0.0, 1.0, -1.0)
-        stride_x = HALF_STRIDE_X * controls.get_axis(0) * movement_multiplier
-        stride_y = HALF_STRIDE_Y * controls.get_axis(1) * movement_multiplier
-        rotation = HALF_ROTATION * controls.get_axis(3) * movement_multiplier
+        minimum_movement = max(abs(self.axis_forward), abs(self.axis_side), abs(self.axis_turn))
+        lift_multiplier = Tools.ramp(minimum_movement, 0.0, 0.0, 0.1, 1.0)
+
+        leg_lift = LEG_LIFT_HEIGHT * self.axis_leg_lift * lift_multiplier
+        body_lift = BODY_LIFT_HEIGHT * Tools.ramp(self.axis_body_lift, 0.0, 0.0, 1.0, -1.0)
+        stride_x = HALF_STRIDE_X * self.axis_forward
+        stride_y = HALF_STRIDE_Y * self.axis_side
+        rotation = HALF_ROTATION * self.axis_turn
 
         if (controls.get_switch(0) == 1):
             phase_table = PHASE_TABLE_BUG
         else:
             phase_table = PHASE_TABLE_THREEPOINT
 
-
         for i in range(6):
-            leg_period = fmod(gait_period + phase_table[i], 2.0)
-
-            offset_z = stance + lift * max(0.0, sin(leg_period * pi))
+            self.leg_phase[i] = Tools.toward(self.leg_phase[i], phase_table[i], 0.5 * dt)
+            leg_period = fmod(gait_period + self.leg_phase[i], 2.0)
 
             if (leg_period < 1.0):
-                t = Tools.ramp(leg_period, 0.0, -1.0, 1.0, 1.0)
+                stride_progress = Tools.ramp(leg_period, 0.0, -1.0, 1.0, 1.0)
             else:
-                t = Tools.ramp(leg_period, 1.0, 1.0, 2.0, -1.0)
+                stride_progress = Tools.ramp(leg_period, 1.0, 1.0, 2.0, -1.0)
 
-            offset_x = stride_x * t
-            offset_y = stride_y * t
-            rotation_matrix = mgen.rotation_around_z(rotation * t)
-
+            offset_x = stride_x * stride_progress
+            offset_y = stride_y * stride_progress
+            offset_z = body_lift + (leg_lift * max(0.0, sin(leg_period * pi)))
             offset = [offset_x, offset_y, offset_z]
-            rotation_matrix = rotation_matrix
 
-            tip_location_translate = numpy.add(HexapodConstants.LOCATION_DEFAULT_TIP[i], offset)
+            rotation_matrix = mgen.rotation_around_z(rotation * stride_progress)
+
+            tip_location_translate = numpy.add(HexapodConstants.TIP_LOCATION_DEFAULT[i], offset)
             tip_location = rotation_matrix.dot(tip_location_translate)
-            angles = self.legs[i].solve_joint_angles(tip_location)
+            angles, can_calculate_angles = self.legs[i].solve_joint_angles(tip_location)
 
-            self.joint_angles[3 * i] = angles[0]
-            self.joint_angles[3 * i + 1] = angles[1]
-            self.joint_angles[3 * i + 2] = angles[2]
+            if (can_calculate_angles):
+                self.joint_angles[3 * i] = angles[0]
+                self.joint_angles[3 * i + 1] = angles[1]
+                self.joint_angles[3 * i + 2] = angles[2]
 
-        time_multiplier = Tools.ramp(controls.get_axis(4), 0.0, 0.5, 1.0, 4.0)
+        time_multiplier = Tools.ramp(self.axis_speed, 0.0, 0.5, 1.0, 4.0)
         self.time += dt * time_multiplier

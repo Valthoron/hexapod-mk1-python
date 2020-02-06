@@ -47,11 +47,10 @@ class LegModelController(GaitController):
         leg_configuration.root_azimuth = radians(-135)
         self.legs[5] = LegModel.LegModel(leg_configuration)
 
-        def print_defaults():
-            print("Default tip locations:")
-            for i in range(6):
-                tip_location = legs[i].solve_tip_location(radians(0), radians(30), radians(-100))
-                print("[ %.1lf %.1lf %.1lf ] -> [ %.1lf %.1lf %.1lf ]" % ( \
-                    legs[i].root_location[0], legs[i].root_location[1], legs[i].root_location[2], \
-                    tip_location[0], tip_location[1], tip_location[2] \
-                    ))
+    def print_defaults(self):
+        print("Default tip locations:")
+        for i in range(6):
+            tip_location = self.legs[i].solve_tip_location(radians(0), radians(30), radians(-100))
+            print("[ %.1lf, %.1lf, %.1lf ]" % ( \
+                tip_location[0], tip_location[1], tip_location[2] \
+                ))

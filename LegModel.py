@@ -55,9 +55,7 @@ class LegModel:
         hip_to_tip = sqrt(displacement_z**2 + (leg_extension - self.hip_length)**2)
 
         if (hip_to_tip >= self.thigh_length + self.shin_length):
-            # TODO: Return better angles.
-            print("Can't solve for tip location.")
-            return [0, 0, 0]
+            return [0, 0, 0], False
 
         # gamma is the angle between hip_to_tip vector and ground plane.
         # gamma is always positive.
@@ -77,4 +75,4 @@ class LegModel:
         azimuth_angle = total_azimuth_angle - self.root_azimuth
 
         joint_angles = [azimuth_angle, hip_angle, knee_angle]
-        return joint_angles
+        return joint_angles, True
