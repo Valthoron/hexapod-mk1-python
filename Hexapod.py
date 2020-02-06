@@ -8,7 +8,9 @@ import Tools
 import UdpSend
 
 import GaitController
+import GaitControllers.PeriodicDisplacement
 import GaitControllers.ThreePointBasic
+import GaitControllers.VectorField
 
 LOOP_PERIOD = 0.025
 
@@ -27,7 +29,7 @@ gait_controller : GaitController
 def hexapod_setup():
     # Done
     global gait_controller
-    gait_controller = GaitControllers.ThreePointBasic.ThreePointBasic()
+    gait_controller = GaitControllers.PeriodicDisplacement.PeriodicDisplacement()
     gait_controller.initialize()
 
     print("Setup complete.")
