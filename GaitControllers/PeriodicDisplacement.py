@@ -52,9 +52,11 @@ class PeriodicDisplacement(LegModelController):
             self.leg_phase[i] = 0.0
 
     def update(self, dt, controls):
-        gait_period = fmod(self.time * 1.0, 2.0)
+        # Read controls into intermediate variables
+        phase_table_switch = controls.get_switch(0)
+        control_mode_switch = controls.get_switch(1)
 
-        if (controls.get_switch(1) == 1):
+        if (control_mode_switch == 1):
             self.axis_tilt_forward = Tools.toward(self.axis_tilt_forward, controls.get_axis(0), 4.0 * dt)
             self.axis_tilt_side = Tools.toward(self.axis_tilt_side, controls.get_axis(1), 4.0 * dt)
         else:
@@ -65,20 +67,24 @@ class PeriodicDisplacement(LegModelController):
             self.axis_leg_lift = Tools.toward(self.axis_leg_lift, Tools.ramp(controls.get_axis(4), -1.0, 0.5, 0.0, 1.0), 0.5 * dt)
             self.axis_body_lift = Tools.toward(self.axis_body_lift, Tools.ramp(controls.get_axis(4), 0.0, 0.0, 1.0, 1.0), 0.5 * dt)
 
+        # Calculate movement parameters
         minimum_movement = max(abs(self.axis_forward), abs(self.axis_side), abs(self.axis_turn))
-        lift_multiplier = Tools.ramp(minimum_movement, 0.0, 0.0, 0.1, 1.0)
+        leg_lift_enabler = Tools.ramp(minimum_movement, 0.0, 0.0, 0.1, 1.0)
 
-        leg_lift = LEG_LIFT_HEIGHT * self.axis_leg_lift * lift_multiplier
+        leg_lift = LEG_LIFT_HEIGHT * self.axis_leg_lift * leg_lift_enabler
         body_lift = BODY_LIFT_HEIGHT * Tools.ramp(self.axis_body_lift, 0.0, 0.0, 1.0, -1.0)
         stride_x = HALF_STRIDE_X * self.axis_forward
         stride_y = HALF_STRIDE_Y * self.axis_side
         rotation = HALF_ROTATION * self.axis_turn
 
-        if (controls.get_switch(0) == 1):
+        if (phase_table_switch == 1):
             phase_table = PHASE_TABLE_BUG
         else:
             phase_table = PHASE_TABLE_THREEPOINT
 
+        gait_period = fmod(self.time * 1.0, 2.0)
+
+        # Work out each leg
         for i in range(6):
             self.leg_phase[i] = Tools.toward(self.leg_phase[i], phase_table[i], 0.5 * dt)
             leg_period = fmod(gait_period + self.leg_phase[i], 2.0)
@@ -99,10 +105,12 @@ class PeriodicDisplacement(LegModelController):
             tip_location = rotation_matrix.dot(tip_location_translate)
             angles, can_calculate_angles = self.legs[i].solve_joint_angles(tip_location)
 
+            # Only update angles if calculation was successful
             if (can_calculate_angles):
                 self.joint_angles[3 * i] = angles[0]
                 self.joint_angles[3 * i + 1] = angles[1]
                 self.joint_angles[3 * i + 2] = angles[2]
 
+        # Increment time
         time_multiplier = Tools.ramp(self.axis_speed, 0.0, 0.5, 1.0, 4.0)
         self.time += dt * time_multiplier
