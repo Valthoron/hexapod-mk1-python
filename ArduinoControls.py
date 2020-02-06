@@ -2,7 +2,7 @@ import smbus
 import Tools
 
 FILTER_CONSTANT = 0.90
-AXIS_DEADZONE = 0.03
+AXIS_DEADZONE = 0.04
 
 class ArduinoControls:
     axis = [0.0 for _ in range(5)]
