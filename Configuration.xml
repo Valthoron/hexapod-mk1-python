@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<Hexapod>
+  <ServoCalibration>
+    <AzimuthTable>
+       -45   1800
+         0   1325
+        45    850
+    </AzimuthTable>
+    <HipTable>
+       -47   1900
+         0   1415
+        55    860
+    </HipTable>
+    <KneeTable>
+      -118    820
+       -90   1100
+         0   2000
+    </KneeTable>
+    <Bias>
+      <Leg1 Azimuth="50" Hip="0" Knee="-50"/>
+      <Leg2 Azimuth="-50" Hip="0" Knee="-50"/>
+      <Leg3 Azimuth="0" Hip="-15" Knee="50"/>
+      <Leg4 Azimuth="-50" Hip="35" Knee="-50"/>
+      <Leg5 Azimuth="-50" Hip="0" Knee="-50"/>
+      <Leg6 Azimuth="-50" Hip="0" Knee="-50"/>
+    </Bias>
+  </ServoCalibration>
+</Hexapod>
