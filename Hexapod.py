@@ -23,17 +23,16 @@ device_Controls = ArduinoControls.ArduinoControls(I2C_CHANNEL, I2C_ADDRESS_ARDUI
 device_ServoDriverRight = ServoDriver.ServoDriver(I2C_ADDRESS_SERVODRIVERRIGHT)
 device_ServoDriverLeft = ServoDriver.ServoDriver(I2C_ADDRESS_SERVODRIVERLEFT)
 
-time_step = 0
 gait_controller : GaitController
 
 def hexapod_setup():
-    # Done
     global gait_controller
     gait_controller = GaitControllers.PeriodicDisplacement.PeriodicDisplacement()
     gait_controller.initialize()
 
-    print("Setup complete.")
     UdpSend.connect()
+
+    print("Setup complete.")
 
 def hexapod_main():
     device_Controls.read_controls()
@@ -43,8 +42,3 @@ def hexapod_main():
 
 def hexapod_shutdown():
     UdpSend.disconnect()
-
-def set_leg_angles(device: ServoDriver.ServoDriver, leg, angles_degree):
-    device.set_servo_angle(3 * leg, angles_degree[0])
-    device.set_servo_angle(3 * leg + 1, angles_degree[1])
-    device.set_servo_angle(3 * leg + 2, angles_degree[2])
