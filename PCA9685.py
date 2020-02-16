@@ -63,6 +63,6 @@ class PCA9685:
             self.leg_pulse_data[7] = pulse2 >> 8
             self.leg_pulse_data[10] = pulse3 & 0xff
             self.leg_pulse_data[11] = pulse3 >> 8
-            self.bus.write_i2c_block_data(self.address, self.__LED0_ON_L + (leg * 12), self.leg_pulse_data)
+            self.bus.write_i2c_block_data(self.address, self.__LED0_ON_L + ((2 - leg) * 12), self.leg_pulse_data)
 
         self.bus.write_byte_data(self.address, self.__MODE1, 0)

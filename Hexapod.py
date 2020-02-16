@@ -2,6 +2,7 @@ from math import *
 import numpy
 
 import ArduinoControls
+import HexapodConfiguration
 import HexapodConstants
 import ServoDriver
 import Tools
@@ -19,26 +20,58 @@ I2C_ADDRESS_ARDUINOCONTROLS = 0x04
 I2C_ADDRESS_SERVODRIVERRIGHT = 0x40
 I2C_ADDRESS_SERVODRIVERLEFT = 0x41
 
-device_Controls = ArduinoControls.ArduinoControls(I2C_CHANNEL, I2C_ADDRESS_ARDUINOCONTROLS)
-device_ServoDriverRight = ServoDriver.ServoDriver(I2C_ADDRESS_SERVODRIVERRIGHT)
-device_ServoDriverLeft = ServoDriver.ServoDriver(I2C_ADDRESS_SERVODRIVERLEFT)
-
-gait_controller : GaitController
+device_controls : ArduinoControls.ArduinoControls
+device_servo_driver_right : ServoDriver.ServoDriver
+device_servo_driver_left : ServoDriver.ServoDriver
+gait_controller : GaitController.GaitController
 
 def hexapod_setup():
+    HexapodConfiguration.load_configuration()
+
+    global device_controls
+    device_controls = ArduinoControls.ArduinoControls(I2C_CHANNEL, I2C_ADDRESS_ARDUINOCONTROLS)
+
+    global device_servo_driver_right
+    device_servo_driver_right = ServoDriver.ServoDriver(I2C_ADDRESS_SERVODRIVERRIGHT)
+    device_servo_driver_right.azimuth_angles = HexapodConfiguration.azimuth_angles
+    device_servo_driver_right.azimuth_pulses = HexapodConfiguration.azimuth_pulses
+    device_servo_driver_right.hip_angles = HexapodConfiguration.hip_angles
+    device_servo_driver_right.hip_pulses = HexapodConfiguration.hip_pulses
+    device_servo_driver_right.knee_angles = HexapodConfiguration.knee_angles
+    device_servo_driver_right.knee_pulses = HexapodConfiguration.knee_pulses
+    device_servo_driver_right.biases = HexapodConfiguration.biases
+
+    global device_servo_driver_left
+    device_servo_driver_left = ServoDriver.ServoDriver(I2C_ADDRESS_SERVODRIVERLEFT)
+    device_servo_driver_left.azimuth_angles = HexapodConfiguration.azimuth_angles
+    device_servo_driver_left.azimuth_pulses = HexapodConfiguration.azimuth_pulses
+    device_servo_driver_left.hip_angles = HexapodConfiguration.hip_angles
+    device_servo_driver_left.hip_pulses = HexapodConfiguration.hip_pulses
+    device_servo_driver_left.knee_angles = HexapodConfiguration.knee_angles
+    device_servo_driver_left.knee_pulses = HexapodConfiguration.knee_pulses
+    device_servo_driver_left.biases = HexapodConfiguration.biases
+
     global gait_controller
     gait_controller = GaitControllers.PeriodicDisplacement.PeriodicDisplacement()
     gait_controller.initialize()
 
-    UdpSend.connect()
+    #UdpSend.connect()
 
     print("Setup complete.")
 
 def hexapod_main():
-    device_Controls.read_controls()
-    gait_controller.update(LOOP_PERIOD, device_Controls)
+    device_controls.read_controls()
+
+    gait_controller.update(LOOP_PERIOD, device_controls)
+
     joint_angles = gait_controller.get_joint_angles()
-    UdpSend.send_angles(numpy.degrees(joint_angles))
+    joint_angles_degree = numpy.degrees(joint_angles)
+
+    device_servo_driver_right.set_joint_angles(joint_angles_degree[0:9])
+    device_servo_driver_left.set_joint_angles(joint_angles_degree[9:18])
+
+    #UdpSend.send_angles(numpy.degrees(joint_angles))
 
 def hexapod_shutdown():
-    UdpSend.disconnect()
+    #UdpSend.disconnect()
+    pass
