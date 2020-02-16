@@ -70,7 +70,7 @@ class PeriodicDisplacement(LegModelController):
             self.axis_leg_lift = Tools.toward(self.axis_leg_lift, Tools.ramp(controls.get_axis(4), -1.0, 0.5, 0.0, 1.0), 0.5 * dt)
             self.axis_body_lift = Tools.toward(self.axis_body_lift, Tools.ramp(controls.get_axis(4), 0.0, 0.0, 1.0, 1.0), 0.5 * dt)
         elif (control_mode_switch == 1):
-            # Tilt
+            # Tilt incremental
             self.axis_tilt_forward = Tools.toward(self.axis_tilt_forward, -1.0 * controls.get_axis(0), 4.0 * dt)
             self.axis_tilt_side = Tools.toward(self.axis_tilt_side, controls.get_axis(1), 4.0 * dt)
 
@@ -79,16 +79,16 @@ class PeriodicDisplacement(LegModelController):
             self.axis_side = Tools.toward(self.axis_side, 0.0, 4.0 * dt)
             self.axis_turn = Tools.toward(self.axis_turn, 0.0, 4.0 * dt)
         else:
-            # Reset movement and tilt
+            # Tilt absolute
+            self.axis_tilt_forward = 0.0
+            self.axis_tilt_side = 0.0
+            self.tilt_forward = controls.get_axis(0) * TILT_LIMIT_FORWARD
+            self.tilt_side = controls.get_axis(1) * TILT_LIMIT_SIDE
+
+            # Reset movement inputs
             self.axis_forward = Tools.toward(self.axis_forward, 0.0, 4.0 * dt)
             self.axis_side = Tools.toward(self.axis_side, 0.0, 4.0 * dt)
             self.axis_turn = Tools.toward(self.axis_turn, 0.0, 4.0 * dt)
-
-            self.axis_tilt_forward = Tools.toward(self.axis_tilt_forward, 0.0, 4.0 * dt)
-            self.axis_tilt_side = Tools.toward(self.axis_tilt_side, 0.0, 4.0 * dt)
-
-            self.tilt_forward = Tools.toward(self.tilt_forward, 0.0, TILT_SPEED * dt)
-            self.tilt_side = Tools.toward(self.tilt_side, 0.0, TILT_SPEED * dt)
 
         # Calculate movement parameters
         minimum_movement = max(abs(self.axis_forward), abs(self.axis_side), abs(self.axis_turn))

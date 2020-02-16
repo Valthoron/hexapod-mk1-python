@@ -1,8 +1,8 @@
 import smbus
 import Tools
 
-FILTER_CONSTANT = 0.90
-AXIS_DEADZONE = 0.04
+FILTER_CONSTANT = 0.8
+AXIS_DEADZONE = 0.03
 
 class ArduinoControls:
     axis = [0.0 for _ in range(5)]
@@ -27,10 +27,10 @@ class ArduinoControls:
         # Channel value [1100 .. 1900] mapped to [-1 .. 1] for channels 0 to 3
         # Channel value [1500 .. 1900] mapped to [-1 .. 1] for channel 4
         for a in range(4):
-            channel_value = Tools.ramp(self.channel_value[a], 1100, -1, 1900, 1)
+            channel_value = Tools.ramp(self.channel_value[a], 1100, -1, 1860, 1)
             self.axis[a] = (FILTER_CONSTANT * self.axis[a]) + ((1.0 - FILTER_CONSTANT) * channel_value)
 
-        channel_value = Tools.ramp(self.channel_value[4], 1500, -1, 1900, 1)
+        channel_value = Tools.ramp(self.channel_value[4], 1480, -1, 1860, 1)
         self.axis[4] = (FILTER_CONSTANT * self.axis[4]) + ((1.0 - FILTER_CONSTANT) * channel_value)
 
         # Read channels 5 to 9 into switches 0 to 4
