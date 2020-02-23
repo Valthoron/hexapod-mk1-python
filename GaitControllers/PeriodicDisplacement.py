@@ -14,6 +14,7 @@ HALF_ROTATION = numpy.radians(15.0)
 TILT_SPEED = numpy.radians(10.0)
 TILT_LIMIT_FORWARD = numpy.radians(20.0)
 TILT_LIMIT_SIDE = numpy.radians(20.0)
+TWIST_LIMIT = numpy.radians(25.0)
 
 PHASE_TABLE_THREEPOINT = [ \
     0.000, \
@@ -39,6 +40,7 @@ class PeriodicDisplacement(LegModelController):
         self.time = 0.0
         self.tilt_forward = 0.0
         self.tilt_side = 0.0
+        self.twist = 0.0
         self.leg_phase = [0.0 for _ in range(6)]
 
         self.axis_forward = 0.0
@@ -84,6 +86,7 @@ class PeriodicDisplacement(LegModelController):
             self.axis_tilt_side = 0.0
             self.tilt_forward = controls.get_axis(0) * TILT_LIMIT_FORWARD
             self.tilt_side = controls.get_axis(1) * TILT_LIMIT_SIDE
+            self.twist = controls.get_axis(3) * TWIST_LIMIT
 
             # Reset movement inputs
             self.axis_forward = Tools.toward(self.axis_forward, 0.0, 4.0 * dt)
@@ -114,7 +117,7 @@ class PeriodicDisplacement(LegModelController):
         self.tilt_side += (self.axis_tilt_side * TILT_SPEED * dt)
         self.tilt_forward = Tools.saturate(self.tilt_forward, -TILT_LIMIT_FORWARD, TILT_LIMIT_FORWARD)
 
-        tilt_matrix = numpy.matmul(mgen.rotation_around_y(self.tilt_forward), mgen.rotation_around_x(self.tilt_side))
+        tilt_matrix = numpy.matmul(mgen.rotation_around_z(self.twist), numpy.matmul(mgen.rotation_around_y(self.tilt_forward), mgen.rotation_around_x(self.tilt_side)))
 
         # Work out each leg
         for i in range(6):
@@ -144,5 +147,5 @@ class PeriodicDisplacement(LegModelController):
                 self.joint_angles[3 * i + 2] = angles[2]
 
         # Increment time
-        time_multiplier = Tools.ramp(self.axis_speed, 0.0, 0.5, 1.0, 4.0)
+        time_multiplier = Tools.ramp(self.axis_speed, 0.0, 0.5, 1.0, 3.0)
         self.time += dt * time_multiplier

@@ -18,7 +18,7 @@
     </KneeTable>
     <Bias>
       <Leg1 Azimuth="50" Hip="0" Knee="-50"/>
-      <Leg2 Azimuth="-50" Hip="0" Knee="-50"/>
+      <Leg2 Azimuth="-50" Hip="15" Knee="-50"/>
       <Leg3 Azimuth="0" Hip="-15" Knee="50"/>
       <Leg4 Azimuth="-50" Hip="35" Knee="-50"/>
       <Leg5 Azimuth="-50" Hip="0" Knee="-50"/>
