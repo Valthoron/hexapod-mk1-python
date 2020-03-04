@@ -1,4 +1,5 @@
-Hexapod
+# Hexapod MK1 - "Findir"
+This is a controller program for a hexapod (six-legged) robot. Mechanical design of the robot can be found here: https://github.com/SmallpTsai/hexapod-v2-7697. Electronics and software is custom.
 
 ## Features
 - Control algorithm running in soft real-time under Raspbian Lite on Raspberry Pi Zero W
@@ -17,6 +18,6 @@ Hexapod
 - [picamera](https://pypi.org/project/picamera/) 1.13
 
 ## How To Run
-Main controller routine is `python3 HexapodMain.py`.
+Main controller routine is `python3 Main.py`.
 
 To calibrate servos, `python3 ServoCalibration.py` commands all joints to preset angles and continually reads the configuration XML for bias values.

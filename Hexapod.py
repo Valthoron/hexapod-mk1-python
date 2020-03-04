@@ -10,6 +10,7 @@ import ServoDriver
 import Tools
 import UdpSend
 
+#import Camera
 import GaitController
 import GaitControllers.PeriodicDisplacement
 
@@ -24,6 +25,7 @@ device_controls : ArduinoControls.ArduinoControls
 device_servo_driver_right : ServoDriver.ServoDriver
 device_servo_driver_left : ServoDriver.ServoDriver
 gait_controller : GaitController.GaitController
+#thread_camera : Thread
 
 def hexapod_setup():
     HexapodConfiguration.load_configuration()
@@ -57,6 +59,10 @@ def hexapod_setup():
 
     #UdpSend.connect()
 
+    #global thread_camera
+    #thread_camera = Thread(target = Camera.camera_run)
+    #thread_camera.start()
+
     print("Setup complete.")
 
 def hexapod_main():
@@ -74,4 +80,6 @@ def hexapod_main():
 
 def hexapod_shutdown():
     #UdpSend.disconnect()
+    #Camera.camera_stop()
+    #thread_camera.join()
     pass
