@@ -1,5 +1,7 @@
-from math import *
 import numpy
+
+from math import *
+from threading import Thread
 
 import ArduinoControls
 import HexapodConfiguration
@@ -10,8 +12,6 @@ import UdpSend
 
 import GaitController
 import GaitControllers.PeriodicDisplacement
-import GaitControllers.ThreePointBasic
-import GaitControllers.VectorField
 
 LOOP_PERIOD = 0.025
 
@@ -32,7 +32,7 @@ def hexapod_setup():
     device_controls = ArduinoControls.ArduinoControls(I2C_CHANNEL, I2C_ADDRESS_ARDUINOCONTROLS)
 
     global device_servo_driver_right
-    device_servo_driver_right = ServoDriver.ServoDriver(I2C_ADDRESS_SERVODRIVERRIGHT)
+    device_servo_driver_right = ServoDriver.ServoDriver(I2C_CHANNEL, I2C_ADDRESS_SERVODRIVERRIGHT)
     device_servo_driver_right.azimuth_angles = HexapodConfiguration.azimuth_angles
     device_servo_driver_right.azimuth_pulses = HexapodConfiguration.azimuth_pulses
     device_servo_driver_right.hip_angles = HexapodConfiguration.hip_angles
@@ -42,7 +42,7 @@ def hexapod_setup():
     device_servo_driver_right.biases = HexapodConfiguration.biases
 
     global device_servo_driver_left
-    device_servo_driver_left = ServoDriver.ServoDriver(I2C_ADDRESS_SERVODRIVERLEFT)
+    device_servo_driver_left = ServoDriver.ServoDriver(I2C_CHANNEL, I2C_ADDRESS_SERVODRIVERLEFT)
     device_servo_driver_left.azimuth_angles = HexapodConfiguration.azimuth_angles
     device_servo_driver_left.azimuth_pulses = HexapodConfiguration.azimuth_pulses
     device_servo_driver_left.hip_angles = HexapodConfiguration.hip_angles
