@@ -8,7 +8,7 @@ This is a controller program for a hexapod (six-legged) robot. Mechanical design
 - Adjustable body height and attitude
 - Adjustable leg lifting height
 - I2C communication with two [Waveshare Servo Driver boards](https://www.waveshare.com/servo-driver-hat.htm) (PCA9685) to run a total of 18 servos
-- I2C communication with an Arduino Nano to read command signals from a [Sanwa SD-10G](http://www.sanwa-denshi.com/rc/sky/propo/sd-10g.html) radio controller for remote control
+- I2C communication with an Arduino Nano to read command signals from a [Sanwa SD-10G](http://www.sanwa-denshi.com/rc/sky/propo/sd-10g.html) radio controller for remote control (Arduino code available at https://github.com/Valthoron/arduino-rc-sampler-interrupt)
 - XML-based configuration file for servo calibration
 
 ## Dependencies
