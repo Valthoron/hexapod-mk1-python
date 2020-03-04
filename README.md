@@ -21,3 +21,8 @@ This is a controller program for a hexapod (six-legged) robot. Mechanical design
 Main controller routine is `python3 Main.py`.
 
 To calibrate servos, `python3 ServoCalibration.py` commands all joints to preset angles and continually reads the configuration XML for bias values.
+
+## Licensing
+This program is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License](http://www.gnu.org/licenses/gpl-3.0.html) as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.

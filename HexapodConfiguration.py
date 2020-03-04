@@ -1,3 +1,6 @@
+# Copyright 2020 Serdar Üşenmez
+# Distributed under the terms of the GNU General Public License v3.0
+
 import xml.etree.ElementTree as ElementTree
 
 azimuth_angles = [-45, 0, 45]

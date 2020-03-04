@@ -1,3 +1,6 @@
+# Copyright 2020 Serdar Üşenmez
+# Distributed under the terms of the GNU General Public License v3.0
+
 class GaitController:
     joint_angles = [0.0 for _ in range(18)]
 

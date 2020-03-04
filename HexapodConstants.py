@@ -1,3 +1,6 @@
+# Copyright 2020 Serdar Üşenmez
+# Distributed under the terms of the GNU General Public License v3.0
+
 LENGTH_LEGATTACHMENT = 20.75
 LENGTH_HIP = 28.0
 LENGTH_THIGH = 42.6
