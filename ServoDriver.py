@@ -7,12 +7,13 @@ import Tools
 class ServoDriver:
     device: PCA9685.PCA9685 = None
 
-    def __init__(self, i2c_address):
+    def __init__(self, channel, address):
         try:
-            self.device = PCA9685.PCA9685(i2c_address)
+            self.device = PCA9685.PCA9685(channel, address)
             self.device.set_frequency(80)
-        except:
-            print("Error opening ServoDriver device on I2C address 0x%02X." % (i2c_address))
+        except Exception as e:
+            print("Error opening ServoDriver device on I2C address 0x%02X:" % (address))
+            print("\t", e)
 
         self.azimuth_angles = [-45, 0, 45]
         self.azimuth_pulses = [1800, 1325, 850]

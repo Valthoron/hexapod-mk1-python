@@ -1,6 +1,8 @@
 import smbus
 import Tools
 
+CHANNEL_COUNT = 10
+ID_LENGTH = 32
 FILTER_CONSTANT = 0.8
 AXIS_DEADZONE = 0.03
 
@@ -12,11 +14,18 @@ class ArduinoControls:
         self.address = address
         self.bus = smbus.SMBus(channel)
 
+        try:
+            msg = self.bus.read_i2c_block_data(self.address, 1, ID_LENGTH)
+            print("ArduinoControls version: ", bytearray(msg).decode("ascii"))
+        except Exception as e:
+            print("Error reading version string from ArduinoControls on I2C address 0x%02X:" % (address))
+            print("\t", e)
+
     def read_controls(self):
         # Read packet of 10 uint16's from i2c
         try:
-            msg = self.bus.read_i2c_block_data(self.address, 16, 10 * 2)
-            for channel in range(10):
+            msg = self.bus.read_i2c_block_data(self.address, 0, CHANNEL_COUNT * 2)
+            for channel in range(CHANNEL_COUNT):
                 value = (msg[channel * 2 + 1] << 8) | (msg[channel * 2])
                 if (value > 900) and (value < 2100):
                     self.channel_value[channel] = value
